@@ -63,7 +63,12 @@ public class Assets {
             reader.setInput(iis, true);
             source = reader.read(0);
         }
-        Image image = gc.createCompatibleImage(source.getWidth(), source.getHeight(), Transparency.BITMASK);
+        Image image; 
+        if (gc == null){
+            image = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        } else {
+            image = gc.createCompatibleImage(source.getWidth(), source.getHeight(), Transparency.BITMASK);
+        }
         Graphics2D g = (Graphics2D) image.getGraphics();
         g.setComposite(AlphaComposite.Src);
         g.drawImage(source, 0, 0, null);
@@ -76,7 +81,12 @@ public class Assets {
         Image[][] images = new Image[source.getWidth(null) / xSize][source.getHeight(null) / ySize];
         for (int x = 0; x < source.getWidth(null) / xSize; x++) {
             for (int y = 0; y < source.getHeight(null) / ySize; y++) {
-                Image image = gc.createCompatibleImage(xSize, ySize, Transparency.BITMASK);
+                Image image;
+                if (gc == null){
+                   image = new BufferedImage(xSize, ySize, BufferedImage.TYPE_INT_ARGB); 
+                } else {
+                   image = gc.createCompatibleImage(xSize, ySize, Transparency.BITMASK);
+                }
                 Graphics2D g = (Graphics2D) image.getGraphics();
                 g.setComposite(AlphaComposite.Src);
                 g.drawImage(source, -x * xSize, -y * ySize, null);

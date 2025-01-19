@@ -1,10 +1,14 @@
 package engine.core;
 
 import java.awt.image.VolatileImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.awt.event.KeyAdapter;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
 import agents.human.Agent;
@@ -40,6 +44,7 @@ public class MarioGame {
      * print debug details
      */
     public static final boolean verbose = false;
+    public static final boolean headless = true;
 
     /**
      * pauses the whole game at any moment
@@ -205,14 +210,16 @@ public class MarioGame {
      */
     public MarioResult runGame(MarioAgent agent, String level, int timer, int marioState, boolean visuals, int fps, float scale) {
         if (visuals) {
-            this.window = new JFrame("Mario AI Framework");
             this.render = new MarioRender(scale);
-            this.window.setContentPane(this.render);
-            this.window.pack();
-            this.window.setResizable(false);
-            this.window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             this.render.init();
-            this.window.setVisible(true);
+            if (!headless){
+                this.window = new JFrame("Mario AI Framework");
+                this.window.setContentPane(this.render);
+                this.window.pack();
+                this.window.setResizable(false);
+                this.window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                this.window.setVisible(true);
+            }
         }
         this.setAgent(agent);
         return this.gameLoop(level, timer, marioState, visuals, fps);
@@ -231,18 +238,27 @@ public class MarioGame {
         long currentTime = System.currentTimeMillis();
 
         //initialize graphics
-        VolatileImage renderTarget = null;
+        Image renderTarget = null;
         Graphics backBuffer = null;
         Graphics currentBuffer = null;
         if (visual) {
-            renderTarget = this.render.createVolatileImage(MarioGame.width, MarioGame.height);
-            backBuffer = this.render.getGraphics();
+            if (headless) {
+                renderTarget = new BufferedImage(
+                    MarioGame.width,
+                    MarioGame.height,
+                    BufferedImage.TYPE_INT_ARGB
+                );
+            } else{
+                renderTarget = this.render.createVolatileImage(MarioGame.width, MarioGame.height);
+                backBuffer = this.render.getGraphics();
+            }
             currentBuffer = renderTarget.getGraphics();
             this.render.addFocusListener(this.render);
         }
 
         MarioTimer agentTimer = new MarioTimer(MarioGame.maxTime);
         this.agent.initialize(new MarioForwardModel(this.world.clone()), agentTimer);
+        int frameNumber = 0;
 
         ArrayList<MarioEvent> gameEvents = new ArrayList<>();
         ArrayList<MarioAgentEvent> agentEvents = new ArrayList<>();
@@ -267,8 +283,20 @@ public class MarioGame {
 
             //render world
             if (visual) {
+                if (headless){
+                    currentBuffer.setColor(Color.BLACK);
+                    currentBuffer.fillRect(0, 0, MarioGame.width, MarioGame.height);
+                }
                 this.render.renderWorld(this.world, renderTarget, backBuffer, currentBuffer);
+                if (headless){
+                    try {
+                        ImageIO.write( (BufferedImage) renderTarget, "png", new File("frames/frame_" + frameNumber + ".png"));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
+            frameNumber++;
             //check if delay needed
             if (this.getDelay(fps) > 0) {
                 try {

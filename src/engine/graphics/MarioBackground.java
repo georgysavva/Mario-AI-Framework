@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Image;
 import java.awt.Transparency;
+import java.awt.image.BufferedImage;
 
 import engine.helper.Assets;
 
@@ -20,8 +21,11 @@ public class MarioBackground extends MarioGraphics {
         this.width = indeces[0].length * 16;
         this.height = indeces.length * 16;
         this.screenWidth = screenWidth;
-
-        image = graphicsConfiguration.createCompatibleImage(width, height, Transparency.BITMASK);
+        if (graphicsConfiguration == null) {
+             image  = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB); 
+        } else{
+            image = graphicsConfiguration.createCompatibleImage(width, height, Transparency.BITMASK);
+        }
         g = (Graphics2D) image.getGraphics();
         g.setComposite(AlphaComposite.Src);
 
