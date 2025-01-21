@@ -96,7 +96,9 @@ public class MarioLevel {
                         break;
                     case '#':
                         //pyramidBlock
-                        this.levelTiles[x][y] = 2;
+                        if (Math.random() < 0.4) {
+                            this.fillElement(lines, x, y, '#', 2);
+                        }
                         break;
                     case '%':
                         //jump through block
@@ -156,18 +158,12 @@ public class MarioLevel {
                         this.totalCoins += 1;
                         this.levelTiles[x][y] = 49;
                         break;
-                    case 'D':
-                        //used
-                        this.levelTiles[x][y] = 14;
-                        break;
-                    case 'S':
-                        //normal block
-                        this.levelTiles[x][y] = 6;
-                        break;
                     case 'C':
                         //coin block
-                        this.totalCoins += 1;
-                        this.levelTiles[x][y] = 7;
+                        if (Math.random() < 0.25) {
+                            int coins= this.fillElement(lines, x, y, 'C', 7);
+                            this.totalCoins += coins;
+                        }
                         break;
                     case 'U':
                         //mushroom block
@@ -249,13 +245,13 @@ public class MarioLevel {
                 }
             }
         }
-        if (!marioLocInit) {
-            this.marioTileX = 0;
-            this.marioTileY = findFirstFloor(lines, this.marioTileX);
-        }
         if (!exitLocInit) {
             this.exitTileX = lines[0].length() - 1;
             this.exitTileY = findFirstFloor(lines, this.exitTileX);
+        }
+        if (!marioLocInit) {
+            this.marioTileX = (int) (Math.random() * (this.exitTileX - 25));
+            this.marioTileY = findFirstFloor(lines, this.marioTileX);
         }
         for (int y = this.exitTileY; y > Math.max(1, this.exitTileY - 11); y--) {
             this.levelTiles[this.exitTileX][y] = 40;
@@ -385,5 +381,25 @@ public class MarioLevel {
         if (cameraX + MarioGame.width >= this.exitTileX * 16) {
             this.flag.render(og, this.exitTileX * 16 - 8 - cameraX, Math.max(1, this.exitTileY - 11) * 16 + 16 - cameraY);
         }
+    }
+
+    private int fillElement(String[] lines, int xStart, int yStart, char element, int code) {
+
+        java.util.Queue<int[]> queue = new java.util.LinkedList<>();
+        queue.add(new int[]{xStart, yStart});
+        int totalCells= 0;
+        while (!queue.isEmpty()) {
+            int[] pos = queue.poll();
+            int x = pos[0], y = pos[1];
+            if (x < 0 || y < 0 || y >= lines.length || x >= lines[y].length()) continue;
+            char c = lines[y].charAt(x);
+            if ((c == element || c == '.') && this.levelTiles[x][y] != code) {
+                this.levelTiles[x][y] = code;
+                totalCells++;
+                queue.add(new int[]{x + 1, y});
+                queue.add(new int[]{x, y + 1});
+            }
+        }
+        return totalCells;
     }
 }
