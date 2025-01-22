@@ -45,6 +45,7 @@ public class MarioGame {
      */
     public static final boolean verbose = false;
     public static final boolean headless = false;
+    public static final int maxSteps = 1200;
 
     /**
      * pauses the whole game at any moment
@@ -258,7 +259,7 @@ public class MarioGame {
 
         MarioTimer agentTimer = new MarioTimer(MarioGame.maxTime);
         this.agent.initialize(new MarioForwardModel(this.world.clone()), agentTimer);
-        int frameNumber = 0;
+        int stepNumber = 0;
 
         ArrayList<MarioEvent> gameEvents = new ArrayList<>();
         ArrayList<MarioAgentEvent> agentEvents = new ArrayList<>();
@@ -266,7 +267,7 @@ public class MarioGame {
             if (!this.pause) {
                 //get actions
                 agentTimer = new MarioTimer(MarioGame.maxTime);
-                boolean[] actions = this.agent.getActions(new MarioForwardModel(this.world.clone()), agentTimer);
+                boolean[] actions = this.agent.getActions(new MarioForwardModel(this.world.clone()), agentTimer, stepNumber);
                 if (MarioGame.verbose) {
                     if (agentTimer.getRemainingTime() < 0 && Math.abs(agentTimer.getRemainingTime()) > MarioGame.graceTime) {
                         System.out.println("The Agent is slowing down the game by: "
@@ -290,13 +291,13 @@ public class MarioGame {
                 this.render.renderWorld(this.world, renderTarget, backBuffer, currentBuffer);
                 if (headless){
                     try {
-                        ImageIO.write( (BufferedImage) renderTarget, "png", new File("frames/frame_" + frameNumber + ".png"));
+                        ImageIO.write( (BufferedImage) renderTarget, "png", new File("frames/frame_" + stepNumber + ".png"));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
             }
-            frameNumber++;
+            stepNumber++;
             //check if delay needed
             if (this.getDelay(fps) > 0) {
                 try {
@@ -306,7 +307,10 @@ public class MarioGame {
                     break;
                 }
             }
+            if (stepNumber >= MarioGame.maxSteps) {
+                break;
+            }
         }
-        return new MarioResult(this.world, gameEvents, agentEvents);
+        return new MarioResult(this.world, gameEvents, agentEvents, stepNumber);
     }
 }

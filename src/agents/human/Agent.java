@@ -17,7 +17,7 @@ public class Agent extends KeyAdapter implements MarioAgent {
     }
 
     @Override
-    public boolean[] getActions(MarioForwardModel model, MarioTimer timer) {
+    public boolean[] getActions(MarioForwardModel model, MarioTimer timer, int currentStep) {
         return actions;
     }
 

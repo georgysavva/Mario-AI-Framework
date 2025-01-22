@@ -19,7 +19,7 @@ public class Agent implements MarioAgent {
     }
 
     @Override
-    public boolean[] getActions(MarioForwardModel model, MarioTimer timer) {
+    public boolean[] getActions(MarioForwardModel model, MarioTimer timer, int currentStep) {
         action = this.tree.optimise(model, timer);
         return action;
     }

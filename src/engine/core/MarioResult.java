@@ -10,6 +10,7 @@ public class MarioResult {
     private MarioWorld world;
     private ArrayList<MarioEvent> gameEvents;
     private ArrayList<MarioAgentEvent> agentEvents;
+    private int steps;
 
     /**
      * Create a mario result object
@@ -18,10 +19,11 @@ public class MarioResult {
      * @param gameEvents   the events that happens in the playthrough of the game
      * @param agentEvents  the events that happens in the playthrough of the game
      */
-    public MarioResult(MarioWorld world, ArrayList<MarioEvent> gameEvents, ArrayList<MarioAgentEvent> agentEvents) {
+    public MarioResult(MarioWorld world, ArrayList<MarioEvent> gameEvents, ArrayList<MarioAgentEvent> agentEvents, int steps) {
         this.world = world;
         this.gameEvents = gameEvents;
         this.agentEvents = agentEvents;
+        this.steps = steps;
     }
 
     /**
@@ -49,6 +51,10 @@ public class MarioResult {
      */
     public int getRemainingTime() {
         return this.world.currentTimer;
+    }
+
+    public int getSteps() {
+        return this.steps;
     }
 
     /**

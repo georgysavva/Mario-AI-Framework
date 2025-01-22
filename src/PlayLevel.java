@@ -12,6 +12,7 @@ public class PlayLevel {
                 " Percentage Completion: " + result.getCompletionPercentage());
         System.out.println("Lives: " + result.getCurrentLives() + " Coins: " + result.getCurrentCoins() +
                 " Remaining Time: " + (int) Math.ceil(result.getRemainingTime() / 1000f));
+        System.out.println("steps: " + result.getSteps());
         System.out.println("Mario State: " + result.getMarioMode() +
                 " (Mushrooms: " + result.getNumCollectedMushrooms() + " Fire Flowers: " + result.getNumCollectedFireflower() + ")");
         System.out.println("Total Kills: " + result.getKillsTotal() + " (Stomps: " + result.getKillsByStomp() +
@@ -33,7 +34,10 @@ public class PlayLevel {
 
     public static void main(String[] args) {
         MarioGame game = new MarioGame();
+        int numEpisodes = 2000;
+        for (int i = 0; i < numEpisodes; i++) {
+            printResults(game.runGame(new agents.exploration.Agent(), getLevel("./levels/original/lvl-15.txt"), 200, 0, true));
+        }
         // printResults(game.playGame(getLevel("../levels/original/lvl-1.txt"), 200, 0));
-        printResults(game.runGame(new agents.human.Agent(), getLevel("./levels/original/lvl-15.txt"), 200, 0, true));
     }
 }
