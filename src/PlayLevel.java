@@ -34,9 +34,18 @@ public class PlayLevel {
 
     public static void main(String[] args) {
         MarioGame game = new MarioGame();
-        int numEpisodes = 2000;
+        int numEpisodes = 10;
+        String savePath = args[0];
         for (int i = 0; i < numEpisodes; i++) {
-            printResults(game.runGame(new agents.exploration.Agent(), getLevel("./levels/original/lvl-15.txt"), 200, 0, true));
+            String episodePath = savePath + "/episode_" + i;
+            try {
+                Files.createDirectories(Paths.get(episodePath));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.println("Episode " + i);
+            printResults(game.runGame(new agents.exploration.Agent(), getLevel("./levels/original/lvl-15.txt"), 200, 0,
+                    true, true, episodePath));
         }
         // printResults(game.playGame(getLevel("../levels/original/lvl-1.txt"), 200, 0));
     }
