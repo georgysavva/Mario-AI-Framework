@@ -1,6 +1,7 @@
 package engine.core;
 
 import java.awt.image.VolatileImage;
+import java.util.List;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -251,11 +252,8 @@ public class MarioGame {
 
         ArrayList<MarioEvent> gameEvents = new ArrayList<>();
         ArrayList<MarioAgentEvent> agentEvents = new ArrayList<>();
-        if (headless) {
-            File dir = new File(savePath + "/frames");
-            dir.mkdirs();
-        }
         File actionsFile = new File(savePath + "/actions.txt");
+        List<BufferedImage> frames = new ArrayList<>();
         try (PrintWriter actionsWriter = new PrintWriter(new FileWriter(actionsFile))) {
             while (this.world.gameStatus == GameStatus.RUNNING) {
                 // get actions
@@ -284,12 +282,16 @@ public class MarioGame {
                     }
                     this.render.renderWorld(this.world, renderTarget, backBuffer, currentBuffer);
                     if (headless) {
-                        try {
-                            ImageIO.write((BufferedImage) renderTarget, "png",
-                                    new File(savePath + "/frames/frame_" + stepNumber + ".png"));
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        BufferedImage frameCopy = new BufferedImage(
+                                renderTarget.getWidth(null),
+                                renderTarget.getHeight(null),
+                                BufferedImage.TYPE_INT_ARGB);
+                        Graphics2D g2d = frameCopy.createGraphics();
+                        g2d.drawImage(renderTarget, 0, 0, null);
+                        g2d.dispose();
+
+                        // Store in a list
+                        frames.add(frameCopy);
                         StringBuilder sb = new StringBuilder();
                         for (boolean action : actions) {
                             sb.append(action ? "1" : "0").append(" ");
@@ -314,6 +316,33 @@ public class MarioGame {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        // Only do this if we actually have frames
+        if (!frames.isEmpty()) {
+            int frameWidth = frames.get(0).getWidth();
+            int frameHeight = frames.get(0).getHeight();
+            int totalWidth = frameWidth * frames.size();
+            int totalHeight = frameHeight; // for a single row; or multiply further if you want multiple rows
+
+            BufferedImage spriteSheet = new BufferedImage(
+                    totalWidth,
+                    totalHeight,
+                    BufferedImage.TYPE_INT_ARGB);
+
+            Graphics g = spriteSheet.getGraphics();
+            for (int i = 0; i < frames.size(); i++) {
+                g.drawImage(frames.get(i), i * frameWidth, 0, null);
+            }
+            g.dispose();
+
+            // Now save ONE file
+            File outputFile = new File(savePath + "/frames.png");
+            try {
+                ImageIO.write(spriteSheet, "png", outputFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         return new MarioResult(this.world, gameEvents, agentEvents, stepNumber);
     }
 }
