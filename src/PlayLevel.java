@@ -34,8 +34,8 @@ public class PlayLevel {
 
     public static void main(String[] args) {
         MarioGame game = new MarioGame();
-        int numEpisodes = 10;
         String savePath = args[0];
+        int numEpisodes = Integer.parseInt(args[1]);
         for (int i = 0; i < numEpisodes; i++) {
             String episodePath = savePath + "/episode_" + i;
             try {
