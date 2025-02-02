@@ -267,13 +267,6 @@ public class MarioGame {
                                 + Math.abs(agentTimer.getRemainingTime()) + " msec.");
                     }
                 }
-                // update world
-                this.world.update(actions);
-                gameEvents.addAll(this.world.lastFrameEvents);
-                agentEvents.add(new MarioAgentEvent(actions, this.world.mario.x,
-                        this.world.mario.y, (this.world.mario.isLarge ? 1 : 0) + (this.world.mario.isFire ? 1 : 0),
-                        this.world.mario.onGround, this.world.currentTick));
-
                 // render world
                 if (visual) {
                     if (headless) {
@@ -292,13 +285,20 @@ public class MarioGame {
 
                         // Store in a list
                         frames.add(frameCopy);
-                        StringBuilder sb = new StringBuilder();
-                        for (boolean action : actions) {
-                            sb.append(action ? "1" : "0").append(" ");
-                        }
-                        actionsWriter.println(sb.toString().trim());
                     }
+                    StringBuilder sb = new StringBuilder();
+                    for (boolean action : actions) {
+                        sb.append(action ? "1" : "0").append(" ");
+                    }
+                    actionsWriter.println(sb.toString().trim());
                 }
+                // update world
+                this.world.update(actions);
+                gameEvents.addAll(this.world.lastFrameEvents);
+                agentEvents.add(new MarioAgentEvent(actions, this.world.mario.x,
+                        this.world.mario.y, (this.world.mario.isLarge ? 1 : 0) + (this.world.mario.isFire ? 1 : 0),
+                        this.world.mario.onGround, this.world.currentTick));
+
                 stepNumber++;
                 // check if delay needed
                 if (this.getDelay(fps) > 0) {
